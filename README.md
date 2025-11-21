@@ -6,6 +6,10 @@ A modern Next.js admin dashboard for managing users with full CRUD operations, r
 
 UserSphere is a comprehensive user management system that demonstrates modern React patterns including optimistic updates, client-side state management, and accessible UI components. The application provides an intuitive interface for viewing, searching, filtering, adding, editing, and deleting users with a clean, responsive design.
 
+## AI Usage
+
+AI scaffolding was used to generate initial boilerplate code and structure for this project. All code was subsequently reviewed, manually typed, and refined to ensure quality, type safety, and adherence to best practices.
+
 ## Getting Started
 
 ### Prerequisites
