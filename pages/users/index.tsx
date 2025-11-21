@@ -4,7 +4,9 @@ import * as Select from '@radix-ui/react-select'
 import * as Dialog from '@radix-ui/react-dialog'
 import { fetchUsers } from '../../src/lib/api/users'
 import { useAddUser, useUpdateUser, useDeleteUser } from '../../src/hooks/useUsers'
+import { useAppStore } from '../../src/stores/useAppStore'
 import UserDialog from '../../src/components/UserDialog'
+import ActivityLog from '../../src/components/ActivityLog'
 import type { User } from '../../src/types'
 
 const getInitials = (name: string): string => {
@@ -38,6 +40,7 @@ export default function UsersPage() {
   const addUserMutation = useAddUser()
   const updateUserMutation = useUpdateUser()
   const deleteUserMutation = useDeleteUser()
+  const { addLog } = useAppStore()
 
   const companies = useMemo(() => {
     if (!users) return []
@@ -108,6 +111,7 @@ export default function UsersPage() {
         { ...payload, id: editingUser.id },
         {
           onSuccess: () => {
+            addLog('edit', `Edited user ${payload.name}`)
             setDialogOpen(false)
             setEditingUser(undefined)
           },
@@ -116,6 +120,7 @@ export default function UsersPage() {
     } else {
       addUserMutation.mutate(payload, {
         onSuccess: () => {
+          addLog('add', `Added user ${payload.name}`)
           setDialogOpen(false)
         },
       })
@@ -139,8 +144,10 @@ export default function UsersPage() {
 
   const handleDeleteConfirm = () => {
     if (userToDelete) {
+      const userName = userToDelete.name
       deleteUserMutation.mutate(userToDelete.id, {
         onSuccess: () => {
+          addLog('delete', `Deleted user ${userName}`)
           setDeleteDialogOpen(false)
           setUserToDelete(undefined)
         },
@@ -358,6 +365,10 @@ export default function UsersPage() {
           </div>
         </div>
       )}
+
+      <div className="mt-8">
+        <ActivityLog />
+      </div>
 
       <UserDialog
         open={dialogOpen}
