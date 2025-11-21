@@ -8,11 +8,19 @@ export default function UsersPage() {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  const queryClient = new QueryClient()
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 5 * 60 * 1000,
+        gcTime: 10 * 60 * 1000,
+      },
+    },
+  })
 
   await queryClient.prefetchQuery({
     queryKey: ['users'],
     queryFn: fetchUsers,
+    staleTime: 5 * 60 * 1000,
   })
 
   return {

@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { useUsers, useAddUser, useUpdateUser, useDeleteUser } from '../hooks/useUsers'
 import { useAppStore } from '../stores/useAppStore'
+import useDebounce from '../hooks/useDebounce'
 import type { User } from '../types'
 import UsersControls from './UsersControls'
 import UsersTable from './UsersTable'
@@ -21,6 +22,7 @@ export default function UsersContainer() {
   const rows = users ?? []
 
   const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [emailSortOrder, setEmailSortOrder] = useState<EmailSortOrder>(null)
   const [selectedCompany, setSelectedCompany] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
@@ -34,6 +36,8 @@ export default function UsersContainer() {
   const deleteUserMutation = useDeleteUser()
   const { addLog } = useAppStore()
 
+  const isMutating = addUserMutation.isPending || updateUserMutation.isPending || deleteUserMutation.isPending
+
   const companies = useMemo(() => {
     if (!rows.length) return []
     const uniqueCompanies = Array.from(new Set(rows.map((user) => user.company.name)))
@@ -45,9 +49,9 @@ export default function UsersContainer() {
 
     let filtered: User[] = rows
 
-    if (searchTerm) {
+    if (debouncedSearchTerm) {
       filtered = filtered.filter((user) =>
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
+        user.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
       )
     }
 
@@ -66,7 +70,7 @@ export default function UsersContainer() {
     }
 
     return filtered
-  }, [rows, searchTerm, selectedCompany, emailSortOrder])
+  }, [rows, debouncedSearchTerm, selectedCompany, emailSortOrder])
 
   const paginatedUsers = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
@@ -78,7 +82,7 @@ export default function UsersContainer() {
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchTerm, selectedCompany, emailSortOrder])
+  }, [debouncedSearchTerm, selectedCompany, emailSortOrder])
 
   useEffect(() => {
     if (currentPage > totalPages && totalPages > 0) {
@@ -181,17 +185,22 @@ export default function UsersContainer() {
       <UsersControls
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
+        isSearching={searchTerm !== debouncedSearchTerm}
         selectedCompany={selectedCompany}
         companyOptions={companies}
         onCompanyChange={setSelectedCompany}
+        onCompanyClear={() => setSelectedCompany('all')}
         emailSortOrder={emailSortOrder}
         onEmailSortToggle={handleEmailSortToggle}
         onAddClick={handleAdd}
+        isMutating={isMutating}
       />
 
       <UsersTable
         users={paginatedUsers}
         isLoading={isLoading}
+        emailSortOrder={emailSortOrder}
+        onEmailSortToggle={handleEmailSortToggle}
         onRowClick={(userId) => router.push(`/users/${userId}`)}
         onEdit={handleEdit}
         onDeleteClick={handleDeleteClick}

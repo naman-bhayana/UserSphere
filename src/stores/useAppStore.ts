@@ -9,10 +9,10 @@ export interface ActivityLogEntry {
 }
 
 interface AppState {
-  currentUser: User | undefined
+  currentUser: User | null
   darkMode: boolean
   activityLog: ActivityLogEntry[]
-  setCurrentUser: (user: User | undefined) => void
+  setCurrentUser: (user: User) => void
   toggleDarkMode: () => void
   addLog: (type: 'add' | 'edit' | 'delete', message: string) => void
 }
@@ -20,10 +20,10 @@ interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
-      currentUser: undefined,
+      currentUser: null,
       darkMode: false,
       activityLog: [],
-      setCurrentUser: (user) => set({ currentUser: user }),
+      setCurrentUser: (user: User) => set({ currentUser: user }),
       toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
       addLog: (type, message) =>
         set((state) => ({
@@ -34,11 +34,11 @@ export const useAppStore = create<AppState>()(
         })),
     }),
     {
-      name: 'app-storage',
+      name: 'usersphere-ui',
       partialize: (state) => ({
         darkMode: state.darkMode,
         activityLog: state.activityLog,
-        // Exclude currentUser from persistence
+        currentUser: state.currentUser,
       }),
     }
   )

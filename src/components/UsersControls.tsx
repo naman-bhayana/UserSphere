@@ -3,23 +3,29 @@ import * as Select from '@radix-ui/react-select'
 interface UsersControlsProps {
   searchTerm: string
   onSearchChange: (value: string) => void
+  isSearching?: boolean
   selectedCompany: string
   companyOptions: string[]
   onCompanyChange: (value: string) => void
+  onCompanyClear: () => void
   emailSortOrder: 'asc' | 'desc' | null
   onEmailSortToggle: () => void
   onAddClick: () => void
+  isMutating?: boolean
 }
 
 export default function UsersControls({
   searchTerm,
   onSearchChange,
+  isSearching = false,
   selectedCompany,
   companyOptions,
   onCompanyChange,
+  onCompanyClear,
   emailSortOrder,
   onEmailSortToggle,
   onAddClick,
+  isMutating = false,
 }: UsersControlsProps) {
   return (
     <>
@@ -28,7 +34,7 @@ export default function UsersControls({
           <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-2">
             Users
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Manage your user database</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Manage your user database</p>
         </div>
         <button
           onClick={onAddClick}
@@ -58,8 +64,13 @@ export default function UsersControls({
             placeholder="Search by name..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200"
+            className="w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200"
           />
+          {isSearching && (
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center" role="status" aria-label="Searching">
+              <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-4">
@@ -116,6 +127,31 @@ export default function UsersControls({
           </button>
         </div>
       </div>
+
+      {(selectedCompany !== 'all' || isMutating) && (
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          {selectedCompany !== 'all' && (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium">
+              <span>Company: {selectedCompany}</span>
+              <button
+                onClick={onCompanyClear}
+                className="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                aria-label={`Clear company filter: ${selectedCompany}`}
+              >
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          )}
+          {isMutating && (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm font-medium" role="status" aria-label="Processing">
+              <div className="w-3 h-3 border-2 border-gray-600 dark:border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+              <span>Processing...</span>
+            </div>
+          )}
+        </div>
+      )}
     </>
   )
 }

@@ -6,6 +6,8 @@ import { getInitials } from '../utils/userUtils'
 interface UsersTableProps {
   users: User[]
   isLoading: boolean
+  emailSortOrder: 'asc' | 'desc' | null
+  onEmailSortToggle: () => void
   onRowClick: (userId: number) => void
   onEdit: (user: User) => void
   onDeleteClick: (user: User) => void
@@ -14,13 +16,16 @@ interface UsersTableProps {
 export default function UsersTable({
   users,
   isLoading,
+  emailSortOrder,
+  onEmailSortToggle,
   onRowClick,
   onEdit,
   onDeleteClick,
 }: UsersTableProps) {
   return (
     <div className="overflow-x-auto rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800/50 backdrop-blur-sm">
-      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700" role="table" aria-label="Users table">
+      <table className="min-w-[700px] w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <caption className="sr-only">Users table with columns for avatar, name, email, phone, company, and actions</caption>
         <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
           <tr>
             <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
@@ -29,8 +34,33 @@ export default function UsersTable({
             <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
               Name
             </th>
-            <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-              Email
+            <th
+              scope="col"
+              className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider"
+              aria-sort={emailSortOrder === 'asc' ? 'ascending' : emailSortOrder === 'desc' ? 'descending' : 'none'}
+            >
+              <div className="flex items-center gap-2">
+                <span>Email</span>
+                <button
+                  onClick={onEmailSortToggle}
+                  className="inline-flex items-center justify-center w-6 h-6 rounded hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
+                  aria-label="Toggle email sort"
+                >
+                  {emailSortOrder === 'asc' ? (
+                    <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                    </svg>
+                  ) : emailSortOrder === 'desc' ? (
+                    <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                    </svg>
+                  )}
+                </button>
+              </div>
             </th>
             <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
               Phone
@@ -50,9 +80,16 @@ export default function UsersTable({
             <EmptyState />
           ) : (
             users.map((user: User) => (
-              <tr key={user.id} className="hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 dark:hover:from-gray-800 dark:hover:to-gray-800 transition-all duration-200 group">
+              <tr
+                key={user.id}
+                className="hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 dark:hover:from-gray-800 dark:hover:to-gray-800 transition-all duration-200 group"
+                aria-label={`User ${user.name}, email: ${user.email}`}
+              >
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center text-white font-semibold shadow-md ring-2 ring-white dark:ring-gray-800 group-hover:scale-110 transition-transform duration-200">
+                  <div
+                    className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center text-white font-semibold shadow-md ring-2 ring-white dark:ring-gray-800 group-hover:scale-110 transition-transform duration-200"
+                    aria-hidden="true"
+                  >
                     {getInitials(user.name)}
                   </div>
                 </td>
@@ -66,10 +103,10 @@ export default function UsersTable({
                   </button>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-600 dark:text-gray-300">{user.email}</div>
+                  <div className="text-sm text-gray-700 dark:text-gray-300">{user.email}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-600 dark:text-gray-300">{user.phone}</div>
+                  <div className="text-sm text-gray-700 dark:text-gray-300">{user.phone}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
@@ -80,7 +117,7 @@ export default function UsersTable({
                   <div className="flex gap-3">
                     <button
                       onClick={() => onEdit(user)}
-                      className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors duration-200 flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-2 py-1"
+                      className="px-3 py-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded border border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                       aria-label={`Edit user ${user.name}`}
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -90,7 +127,7 @@ export default function UsersTable({
                     </button>
                     <button
                       onClick={() => onDeleteClick(user)}
-                      className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium transition-colors duration-200 flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded px-2 py-1"
+                      className="px-3 py-1.5 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20"
                       aria-label={`Delete user ${user.name}`}
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">

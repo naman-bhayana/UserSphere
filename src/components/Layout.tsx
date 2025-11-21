@@ -1,13 +1,15 @@
 import { ReactNode, useEffect } from 'react'
 import * as Switch from '@radix-ui/react-switch'
 import { useAppStore } from '../stores/useAppStore'
+import { useUsers } from '../hooks/useUsers'
 
 interface LayoutProps {
   children: ReactNode
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const { currentUser, darkMode, toggleDarkMode } = useAppStore()
+  const { currentUser, darkMode, toggleDarkMode, setCurrentUser } = useAppStore()
+  const { data: users } = useUsers()
 
   useEffect(() => {
     if (darkMode) {
@@ -17,14 +19,14 @@ export default function Layout({ children }: LayoutProps) {
     }
   }, [darkMode])
 
-  const getInitials = (name: string): string => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
-  }
+  useEffect(() => {
+    if (!currentUser && users && users.length > 0) {
+      const defaultUser = users.find((u) => u.id === 1) || users[0]
+      if (defaultUser) {
+        setCurrentUser(defaultUser)
+      }
+    }
+  }, [currentUser, users, setCurrentUser])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
@@ -46,16 +48,6 @@ export default function Layout({ children }: LayoutProps) {
                   UserSphere
                 </span>
               </div>
-              {currentUser && (
-                <div className="flex items-center gap-3 ml-6 pl-6 border-l border-gray-200 dark:border-gray-800">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center text-white font-semibold shadow-lg ring-2 ring-white dark:ring-gray-800 transition-transform hover:scale-105">
-                    {getInitials(currentUser.name)}
-                  </div>
-                  <span className="text-gray-900 dark:text-white font-medium">
-                    {currentUser.name}
-                  </span>
-                </div>
-              )}
             </div>
             <div className="flex items-center gap-3">
               <label htmlFor="dark-mode" className="text-sm font-medium text-gray-700 dark:text-gray-300">
