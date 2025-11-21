@@ -22,9 +22,8 @@ UserSphere/
 │   ├── hooks/
 │   │   └── useUsers.ts
 │   ├── lib/
-│   │   ├── api/
-│   │   │   └── users.ts
-│   │   └── reactQuery.ts
+│   │   └── api/
+│   │       └── users.ts
 │   ├── stores/
 │   │   └── useAppStore.ts
 │   └── types.ts

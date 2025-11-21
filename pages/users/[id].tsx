@@ -10,20 +10,16 @@ export default function UserDetailPage() {
   const userId = typeof id === 'string' ? parseInt(id, 10) : undefined
   const queryClient = useQueryClient()
 
-  // First try to get user from cache (for newly added users or optimistic updates)
   const users = queryClient.getQueryData<User[]>(['users'])
   const cachedUser = users?.find((u) => u.id === userId)
 
   const { data: apiUser, isLoading, error } = useQuery({
     queryKey: ['user', userId],
     queryFn: () => fetchUserById(userId!),
-    enabled: !!userId && !isNaN(userId) && userId > 0 && !cachedUser, // Only fetch if positive ID and not in cache
+    enabled: !!userId && !isNaN(userId) && userId > 0 && !cachedUser,
   })
 
-  // Use cached user if available, otherwise use API user
   const user = cachedUser || apiUser
-
-  // Only show loading if we don't have cached user and API is loading
   const isActuallyLoading = !cachedUser && isLoading
 
   if (isActuallyLoading) {
@@ -37,7 +33,6 @@ export default function UserDetailPage() {
     )
   }
 
-  // Only show error if we don't have cached user and there's an error
   if ((!cachedUser && error) || (!user && !isActuallyLoading)) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -59,7 +54,6 @@ export default function UserDetailPage() {
     )
   }
 
-  // Safety check - should not happen due to error handling above, but TypeScript needs it
   if (!user) {
     return null
   }

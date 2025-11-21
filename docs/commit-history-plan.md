@@ -178,9 +178,36 @@ style: accessibility & responsive polish
 
 ---
 
+## Step 13: Server-Side Rendering with React Query
+
+**Files Changed:**
+- `pages/users/index.tsx` (add getServerSideProps)
+- `pages/_app.tsx` (add HydrationBoundary)
+
+**Commit Message:**
+```
+perf: add SSR prefetch + react-query dehydrate/hydrate for users list
+```
+
+---
+
+## Step 14: Code Cleanup and Structure
+
+**Files Changed:**
+- `src/hooks/useUsers.ts` (remove duplicate fetchUsers/fetchUserById, import from api)
+- `pages/users/index.tsx` (remove console.debug statements, unused queryClient)
+- `src/lib/reactQuery.ts` (deleted - unused file)
+
+**Commit Message:**
+```
+refactor: remove duplicate code and cleanup unused files
+```
+
+---
+
 ## Summary
 
-Total commits: 12
+Total commits: 14
 
 Each commit represents a logical, incremental feature addition that can be reviewed and understood independently. This approach ensures:
 - Clear progression of features
