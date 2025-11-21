@@ -92,13 +92,11 @@ export default function UserDialog({ open, onOpenChange, initial, onSubmit }: Us
                 <input
                   id="phone"
                   type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]+"
                   required
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/\D+/g, ''))}
+                  onChange={(e) => setPhone(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm"
-                  placeholder="e.g. 9876543210"
+                  placeholder="Enter phone"
                 />
               </div>
               <div>

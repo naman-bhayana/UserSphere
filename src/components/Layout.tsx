@@ -3,6 +3,7 @@ import Link from 'next/link'
 import * as Switch from '@radix-ui/react-switch'
 import { useAppStore } from '../stores/useAppStore'
 import { useUsers } from '../hooks/useUsers'
+import { getInitials } from '../utils/userUtils'
 
 interface LayoutProps {
   children: ReactNode
@@ -40,7 +41,7 @@ export default function Layout({ children }: LayoutProps) {
       </a>
       <nav className="border-b border-gray-200/80 dark:border-gray-800/80 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl shadow-md" role="navigation" aria-label="Main navigation">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 py-3">
             <div className="flex items-center gap-4">
               <Link href="/" aria-label="Go to home" className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 shadow-lg grid place-items-center">
@@ -60,6 +61,7 @@ export default function Layout({ children }: LayoutProps) {
                 </span>
               </Link>
             </div>
+          <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
               <label htmlFor="dark-mode" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Dark mode
@@ -74,12 +76,23 @@ export default function Layout({ children }: LayoutProps) {
                 <Switch.Thumb className="block w-5 h-5 bg-white rounded-full transition-transform duration-300 translate-x-0.5 data-[state=checked]:translate-x-[22px] shadow-md" />
               </Switch.Root>
             </div>
+            {currentUser && (
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 grid place-items-center text-white font-semibold">
+                  {getInitials(currentUser.name)}
+                </div>
+                <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 max-w-[160px] truncate">
+                  {currentUser.name}
+                </span>
+              </div>
+            )}
+          </div>
           </div>
         </div>
       </nav>
       <main id="main-content" className="transition-colors duration-300" role="main">{children}</main>
       <footer className="mt-8 border-t border-gray-200 dark:border-gray-800 bg-white/60 dark:bg-gray-900/60 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600" />
             <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Manage users elegantly</span>

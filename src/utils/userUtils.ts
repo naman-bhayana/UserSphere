@@ -29,10 +29,6 @@ export const validateUser = (name: string, email: string, phone: string): boolea
     alert('Please enter a valid email address')
     return false
   }
-  if (!validatePhone(phone)) {
-    alert('Phone must contain digits only')
-    return false
-  }
   return true
 }
 

@@ -87,13 +87,13 @@ export default function UserDetailPage() {
 
       <div className="bg-white/80 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-bold text-2xl ring-4 ring-white/30">
               {getInitials(user.name)}
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-white">{user.name}</h2>
-              <p className="text-blue-100">{user.email}</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-white">{user.name}</h2>
+              <p className="text-blue-100 break-words">{user.email}</p>
             </div>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function UserDetailPage() {
 
             <div className="space-y-1">
               <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</h3>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white">{user.email}</p>
+              <p className="text-lg font-semibold text-gray-900 dark:text-white break-words">{user.email}</p>
             </div>
 
             <div className="space-y-1">
