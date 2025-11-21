@@ -54,6 +54,9 @@ export default function UserDialog({ open, onOpenChange, initial, onSubmit }: Us
             <Dialog.Title className="text-2xl font-bold text-gray-900 dark:text-white">
               {initial ? 'Edit User' : 'Add User'}
             </Dialog.Title>
+            <Dialog.Description className="sr-only">
+              {initial ? 'Update the existing user details in the form' : 'Create a new user by filling the form'}
+            </Dialog.Description>
           </div>
           <form onSubmit={handleSubmit}>
             <div className="space-y-5">

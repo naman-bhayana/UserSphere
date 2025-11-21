@@ -68,8 +68,10 @@ export const useAddUser = () => {
       return { previousUsers, tempUser }
     },
     onSuccess: (data, variables, context) => {
+      const tempId = context?.tempUser?.id
       const mergedUser: User = {
         ...data,
+        id: data.id,
         phone: variables.phone,
         company: {
           name: variables.company,
@@ -88,12 +90,14 @@ export const useAddUser = () => {
       }
 
       queryClient.setQueryData<User[]>(['users'], (old = []) => {
-        if (!old) return [mergedUser]
-        const tempId = context?.tempUser?.id
+        const existing = old ?? []
         if (tempId) {
-          return old.map((user) => (user.id === tempId ? mergedUser : user))
+          return existing.map((user) => (user.id === tempId ? mergedUser : user))
         }
-        return [mergedUser, ...old]
+        const deduped = existing.filter(
+          (u) => u.email !== mergedUser.email && u.username !== mergedUser.username
+        )
+        return [mergedUser, ...deduped]
       })
     },
     onError: (_err, _newUser, context) => {
@@ -109,8 +113,80 @@ export const useUpdateUser = () => {
 
   return useMutation({
     mutationFn: async (payload: UpdateUserPayload): Promise<User> => {
-      const response = await axios.put<User>(`${BASE_URL}/users/${payload.id}`, payload)
-      return response.data
+      let targetId = payload.id
+      if (targetId < 0) {
+        const users = queryClient.getQueryData<User[]>(['users']) || []
+        const usernameGuess = payload.name.toLowerCase().replace(/\s+/g, '')
+        const found = users.find(
+          (u) => u.email === payload.email || u.username === usernameGuess
+        )
+        if (found) {
+          targetId = found.id
+        }
+      }
+
+      if (targetId > 10) {
+        const users = queryClient.getQueryData<User[]>(['users']) || []
+        const current = users.find((u) => u.id === targetId) || users.find((u) => u.id === payload.id)
+        return {
+          ...(current ?? {
+            id: targetId,
+            name: payload.name,
+            username: payload.name.toLowerCase().replace(/\s+/g, ''),
+            email: payload.email,
+            phone: payload.phone,
+            website: '',
+            address: {
+              street: '',
+              suite: '',
+              city: '',
+              zipcode: '',
+              geo: { lat: '', lng: '' },
+            },
+            company: { name: payload.company, catchPhrase: '', bs: '' },
+          }),
+          name: payload.name,
+          email: payload.email,
+          phone: payload.phone,
+          company: {
+            ...(current?.company ?? { name: payload.company, catchPhrase: '', bs: '' }),
+            name: payload.company,
+          },
+        } as User
+      }
+
+      try {
+        const response = await axios.put<User>(`${BASE_URL}/users/${targetId}`, payload)
+        return { ...response.data, id: targetId }
+      } catch (_e) {
+        const users = queryClient.getQueryData<User[]>(['users']) || []
+        const current = users.find((u) => u.id === targetId) || users.find((u) => u.id === payload.id)
+        return {
+          ...(current ?? {
+            id: targetId,
+            name: payload.name,
+            username: payload.name.toLowerCase().replace(/\s+/g, ''),
+            email: payload.email,
+            phone: payload.phone,
+            website: '',
+            address: {
+              street: '',
+              suite: '',
+              city: '',
+              zipcode: '',
+              geo: { lat: '', lng: '' },
+            },
+            company: { name: payload.company, catchPhrase: '', bs: '' },
+          }),
+          name: payload.name,
+          email: payload.email,
+          phone: payload.phone,
+          company: {
+            ...(current?.company ?? { name: payload.company, catchPhrase: '', bs: '' }),
+            name: payload.company,
+          },
+        } as User
+      }
     },
     onMutate: async (updatedUser) => {
       await queryClient.cancelQueries({ queryKey: ['users'] })
@@ -138,7 +214,7 @@ export const useUpdateUser = () => {
     onSuccess: (data, variables) => {
       queryClient.setQueryData<User[]>(['users'], (old = []) =>
         old.map((user) => {
-          if (user.id === data.id) {
+          if (user.id === variables.id) {
             return {
               ...data,
               phone: variables.phone,

@@ -96,8 +96,14 @@ export default function UsersContainer() {
     }
 
     if (editingUser) {
+      const resolvedId = editingUser.id < 0
+        ? (rows.find((u) =>
+            (u.email === editingUser.email) || (u.username === editingUser.username)
+          )?.id ?? editingUser.id)
+        : editingUser.id
+
       updateUserMutation.mutate(
-        { ...payload, id: editingUser.id },
+        { ...payload, id: resolvedId },
         {
           onSuccess: () => {
             addLog('edit', `Edited user ${payload.name}`)
