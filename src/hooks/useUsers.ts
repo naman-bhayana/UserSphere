@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import { fetchUsers } from '../lib/api/users'
 import type { User } from '../types'
 
 const BASE_URL = 'https://jsonplaceholder.typicode.com'
@@ -16,13 +15,28 @@ interface UpdateUserPayload extends CreateUserPayload {
   id: number
 }
 
+// Fetch all users
+export const fetchUsers = async (): Promise<User[]> => {
+  const response = await axios.get<User[]>(`${BASE_URL}/users`)
+  return response.data
+}
+
+// Fetch user by ID
+export const fetchUserById = async (id: number): Promise<User> => {
+  const response = await axios.get<User>(`${BASE_URL}/users/${id}`)
+  return response.data
+}
+
+// Query hook for users list
 export const useUsers = () => {
   return useQuery({
     queryKey: ['users'],
     queryFn: fetchUsers,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   })
 }
 
+// Mutation hook for adding user with optimistic update
 export const useAddUser = () => {
   const queryClient = useQueryClient()
 
@@ -32,11 +46,14 @@ export const useAddUser = () => {
       return response.data
     },
     onMutate: async (newUser) => {
+      // Cancel outgoing queries to prevent overwriting optimistic update
       await queryClient.cancelQueries({ queryKey: ['users'] })
+      // Snapshot previous data for rollback
       const previousUsers = queryClient.getQueryData<User[]>(['users'])
 
+      // Create optimistic user with negative temporary ID
       const tempUser: User = {
-        id: Date.now(),
+        id: -Date.now(),
         name: newUser.name,
         username: newUser.name.toLowerCase().replace(/\s+/g, ''),
         email: newUser.email,
@@ -59,21 +76,53 @@ export const useAddUser = () => {
         },
       }
 
-      queryClient.setQueryData<User[]>(['users'], (old = []) => [...old, tempUser])
+      // Optimistically prepend new user
+      queryClient.setQueryData<User[]>(['users'], (old = []) => [tempUser, ...old])
 
-      return { previousUsers }
+      return { previousUsers, tempUser }
+    },
+    onSuccess: (data, variables, context) => {
+      // Merge API response with optimistic data to preserve company and other fields
+      const mergedUser: User = {
+        ...data,
+        phone: variables.phone,
+        company: {
+          name: variables.company,
+          catchPhrase: context?.tempUser?.company?.catchPhrase || '',
+          bs: context?.tempUser?.company?.bs || '',
+        },
+        address: data.address || context?.tempUser?.address || {
+          street: '',
+          suite: '',
+          city: '',
+          zipcode: '',
+          geo: { lat: '', lng: '' },
+        },
+        website: data.website || context?.tempUser?.website || '',
+        username: data.username || context?.tempUser?.username || '',
+      }
+      
+      // Replace optimistic user with merged real data from API
+      queryClient.setQueryData<User[]>(['users'], (old = []) => {
+        if (!old) return [mergedUser]
+        // Replace temp user (negative ID) with merged user
+        const tempId = context?.tempUser?.id
+        if (tempId) {
+          return old.map((user) => (user.id === tempId ? mergedUser : user))
+        }
+        return [mergedUser, ...old]
+      })
     },
     onError: (_err, _newUser, context) => {
+      // Rollback to previous state on error
       if (context?.previousUsers) {
         queryClient.setQueryData(['users'], context.previousUsers)
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] })
-    },
   })
 }
 
+// Mutation hook for updating user with optimistic update
 export const useUpdateUser = () => {
   const queryClient = useQueryClient()
 
@@ -83,9 +132,12 @@ export const useUpdateUser = () => {
       return response.data
     },
     onMutate: async (updatedUser) => {
+      // Cancel outgoing queries
       await queryClient.cancelQueries({ queryKey: ['users'] })
+      // Snapshot previous data
       const previousUsers = queryClient.getQueryData<User[]>(['users'])
 
+      // Optimistically update user by mapping over array
       queryClient.setQueryData<User[]>(['users'], (old = []) =>
         old.map((user) =>
           user.id === updatedUser.id
@@ -105,17 +157,44 @@ export const useUpdateUser = () => {
 
       return { previousUsers }
     },
+    onSuccess: (data, variables) => {
+      // Merge API response with variables to preserve company and other fields
+      queryClient.setQueryData<User[]>(['users'], (old = []) =>
+        old.map((user) => {
+          if (user.id === data.id) {
+            return {
+              ...data,
+              phone: variables.phone,
+              company: {
+                name: variables.company,
+                catchPhrase: user.company?.catchPhrase || '',
+                bs: user.company?.bs || '',
+              },
+              address: data.address || user.address || {
+                street: '',
+                suite: '',
+                city: '',
+                zipcode: '',
+                geo: { lat: '', lng: '' },
+              },
+              website: data.website || user.website || '',
+              username: data.username || user.username || '',
+            }
+          }
+          return user
+        })
+      )
+    },
     onError: (_err, _updatedUser, context) => {
+      // Rollback on error
       if (context?.previousUsers) {
         queryClient.setQueryData(['users'], context.previousUsers)
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] })
-    },
   })
 }
 
+// Mutation hook for deleting user with optimistic update
 export const useDeleteUser = () => {
   const queryClient = useQueryClient()
 
@@ -124,21 +203,22 @@ export const useDeleteUser = () => {
       await axios.delete(`${BASE_URL}/users/${id}`)
     },
     onMutate: async (id) => {
+      // Cancel outgoing queries
       await queryClient.cancelQueries({ queryKey: ['users'] })
+      // Snapshot previous data
       const previousUsers = queryClient.getQueryData<User[]>(['users'])
 
+      // Optimistically remove user
       queryClient.setQueryData<User[]>(['users'], (old = []) => old.filter((user) => user.id !== id))
 
       return { previousUsers }
     },
     onError: (_err, _id, context) => {
+      // Rollback on error
       if (context?.previousUsers) {
         queryClient.setQueryData(['users'], context.previousUsers)
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] })
-    },
+    // No onSettled - optimistic removal is already done, no need to refetch
   })
 }
-
