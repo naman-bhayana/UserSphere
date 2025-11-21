@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import * as Select from '@radix-ui/react-select'
 import { fetchUsers } from '../../src/lib/api/users'
+import { useAddUser, useUpdateUser } from '../../src/hooks/useUsers'
+import UserDialog from '../../src/components/UserDialog'
 import type { User } from '../../src/types'
 
 const getInitials = (name: string): string => {
@@ -24,6 +26,11 @@ export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [emailSortOrder, setEmailSortOrder] = useState<EmailSortOrder>(null)
   const [selectedCompany, setSelectedCompany] = useState<string>('all')
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState<User | undefined>(undefined)
+
+  const addUserMutation = useAddUser()
+  const updateUserMutation = useUpdateUser()
 
   const companies = useMemo(() => {
     if (!users) return []
@@ -59,6 +66,53 @@ export default function UsersPage() {
     return filtered
   }, [users, searchTerm, selectedCompany, emailSortOrder])
 
+  const validateForm = (name: string, email: string): boolean => {
+    if (!name.trim()) {
+      alert('Name is required')
+      return false
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      alert('Please enter a valid email address')
+      return false
+    }
+    return true
+  }
+
+  const handleSubmit = (payload: { name: string; email: string; phone: string; company: string }) => {
+    if (!validateForm(payload.name, payload.email)) {
+      return
+    }
+
+    if (editingUser) {
+      updateUserMutation.mutate(
+        { ...payload, id: editingUser.id },
+        {
+          onSuccess: () => {
+            setDialogOpen(false)
+            setEditingUser(undefined)
+          },
+        }
+      )
+    } else {
+      addUserMutation.mutate(payload, {
+        onSuccess: () => {
+          setDialogOpen(false)
+        },
+      })
+    }
+  }
+
+  const handleEdit = (user: User) => {
+    setEditingUser(user)
+    setDialogOpen(true)
+  }
+
+  const handleAdd = () => {
+    setEditingUser(undefined)
+    setDialogOpen(true)
+  }
+
   if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -81,7 +135,15 @@ export default function UsersPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Users</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Users</h1>
+        <button
+          onClick={handleAdd}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Add User
+        </button>
+      </div>
 
       <div className="mb-6 flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
@@ -212,7 +274,10 @@ export default function UsersPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex gap-2">
-                      <button className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
+                      <button
+                        onClick={() => handleEdit(user)}
+                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
                         Edit
                       </button>
                       <button className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
@@ -226,6 +291,13 @@ export default function UsersPage() {
           </tbody>
         </table>
       </div>
+
+      <UserDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        initial={editingUser}
+        onSubmit={handleSubmit}
+      />
     </div>
   )
 }
