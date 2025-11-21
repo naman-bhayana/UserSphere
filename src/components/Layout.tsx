@@ -1,7 +1,5 @@
 import { ReactNode, useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import * as Switch from '@radix-ui/react-switch'
-import { fetchUsers } from '../lib/api/users'
 import { useAppStore } from '../stores/useAppStore'
 
 interface LayoutProps {
@@ -11,10 +9,13 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const { currentUser, darkMode, toggleDarkMode, setCurrentUser } = useAppStore()
 
-  const { data: users } = useQuery({
-    queryKey: ['users'],
-    queryFn: fetchUsers,
-  })
+  // Clear currentUser on mount (it shouldn't be persisted)
+  useEffect(() => {
+    if (currentUser) {
+      setCurrentUser(undefined)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (darkMode) {
@@ -23,12 +24,6 @@ export default function Layout({ children }: LayoutProps) {
       document.documentElement.classList.remove('dark')
     }
   }, [darkMode])
-
-  useEffect(() => {
-    if (users && users.length > 0 && !currentUser) {
-      setCurrentUser(users[0])
-    }
-  }, [users, currentUser, setCurrentUser])
 
   const getInitials = (name: string): string => {
     return name

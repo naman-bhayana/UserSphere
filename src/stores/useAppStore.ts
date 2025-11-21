@@ -35,6 +35,11 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'app-storage',
+      partialize: (state) => ({
+        darkMode: state.darkMode,
+        activityLog: state.activityLog,
+        // Exclude currentUser from persistence
+      }),
     }
   )
 )
