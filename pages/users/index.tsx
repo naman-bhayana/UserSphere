@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import * as Select from '@radix-ui/react-select'
+import * as Dialog from '@radix-ui/react-dialog'
 import { fetchUsers } from '../../src/lib/api/users'
-import { useAddUser, useUpdateUser } from '../../src/hooks/useUsers'
+import { useAddUser, useUpdateUser, useDeleteUser } from '../../src/hooks/useUsers'
 import UserDialog from '../../src/components/UserDialog'
 import type { User } from '../../src/types'
 
@@ -28,9 +29,12 @@ export default function UsersPage() {
   const [selectedCompany, setSelectedCompany] = useState<string>('all')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | undefined>(undefined)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<User | undefined>(undefined)
 
   const addUserMutation = useAddUser()
   const updateUserMutation = useUpdateUser()
+  const deleteUserMutation = useDeleteUser()
 
   const companies = useMemo(() => {
     if (!users) return []
@@ -111,6 +115,22 @@ export default function UsersPage() {
   const handleAdd = () => {
     setEditingUser(undefined)
     setDialogOpen(true)
+  }
+
+  const handleDeleteClick = (user: User) => {
+    setUserToDelete(user)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = () => {
+    if (userToDelete) {
+      deleteUserMutation.mutate(userToDelete.id, {
+        onSuccess: () => {
+          setDeleteDialogOpen(false)
+          setUserToDelete(undefined)
+        },
+      })
+    }
   }
 
   if (isLoading) {
@@ -280,7 +300,10 @@ export default function UsersPage() {
                       >
                         Edit
                       </button>
-                      <button className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                      <button
+                        onClick={() => handleDeleteClick(user)}
+                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                      >
                         Delete
                       </button>
                     </div>
@@ -298,6 +321,36 @@ export default function UsersPage() {
         initial={editingUser}
         onSubmit={handleSubmit}
       />
+
+      <Dialog.Root open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/50 z-40" />
+          <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-md z-50 focus:outline-none">
+            <Dialog.Title className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              Delete User
+            </Dialog.Title>
+            <Dialog.Description className="text-gray-600 dark:text-gray-400 mb-6">
+              Are you sure you want to delete {userToDelete?.name}? This action cannot be undone.
+            </Dialog.Description>
+            <div className="flex justify-end gap-3">
+              <Dialog.Close asChild>
+                <button
+                  type="button"
+                  className="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  Cancel
+                </button>
+              </Dialog.Close>
+              <button
+                onClick={handleDeleteConfirm}
+                className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+              >
+                Delete
+              </button>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   )
 }

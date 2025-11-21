@@ -116,3 +116,29 @@ export const useUpdateUser = () => {
   })
 }
 
+export const useDeleteUser = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (id: number): Promise<void> => {
+      await axios.delete(`${BASE_URL}/users/${id}`)
+    },
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['users'] })
+      const previousUsers = queryClient.getQueryData<User[]>(['users'])
+
+      queryClient.setQueryData<User[]>(['users'], (old = []) => old.filter((user) => user.id !== id))
+
+      return { previousUsers }
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previousUsers) {
+        queryClient.setQueryData(['users'], context.previousUsers)
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+  })
+}
+
