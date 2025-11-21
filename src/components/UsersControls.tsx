@@ -29,26 +29,28 @@ export default function UsersControls({
 }: UsersControlsProps) {
   return (
     <>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-8 card-glass p-4">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-200 bg-clip-text text-transparent mb-2">
             Users
           </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Manage your user database</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300">Manage your user database</p>
         </div>
         <button
           onClick={onAddClick}
-          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg hover:shadow-xl transition-all duration-200 font-medium flex items-center gap-2"
+          className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-900 shadow-lg hover:shadow-xl transition-transform duration-200 font-semibold flex items-center gap-2 active:scale-[0.98]"
           aria-label="Add new user"
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
+          <span className="grid place-items-center w-6 h-6 rounded-full bg-white/20">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </span>
           Add User
         </button>
       </div>
 
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+      <div className="mb-6 flex flex-col sm:flex-row gap-4 card-glass p-4">
         <div className="flex-1 relative">
           <label htmlFor="search" className="sr-only">
             Search by name
@@ -64,7 +66,7 @@ export default function UsersControls({
             placeholder="Search by name..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200"
+            className="w-full pl-10 pr-10 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-white/80 dark:bg-gray-900/60 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all duration-200"
           />
           {isSearching && (
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center" role="status" aria-label="Searching">
@@ -76,7 +78,7 @@ export default function UsersControls({
         <div className="flex gap-4">
           <Select.Root value={selectedCompany} onValueChange={onCompanyChange}>
             <Select.Trigger
-              className="inline-flex items-center justify-between px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white min-w-[180px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm transition-all duration-200 font-medium"
+              className="inline-flex items-center justify-between px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-white/80 dark:bg-gray-900/60 text-gray-900 dark:text-gray-100 min-w-[200px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-900 shadow-sm transition-all duration-200 font-medium"
               aria-label="Filter by company"
             >
               <Select.Value placeholder="All Companies">
@@ -92,7 +94,7 @@ export default function UsersControls({
               </Select.Icon>
             </Select.Trigger>
             <Select.Portal>
-              <Select.Content className="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
+              <Select.Content className="overflow-hidden bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
                 <Select.Viewport className="p-2">
                   <Select.Item
                     value="all"
@@ -116,7 +118,7 @@ export default function UsersControls({
 
           <button
             onClick={onEmailSortToggle}
-            className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm transition-all duration-200 font-medium flex items-center gap-2"
+            className="px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-white/80 dark:bg-gray-900/60 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100 dark:focus:ring-offset-gray-900 shadow-sm transition-all duration-200 font-semibold flex items-center gap-2"
             aria-label={`Sort by email ${emailSortOrder === 'asc' ? 'ascending' : emailSortOrder === 'desc' ? 'descending' : 'none'}`}
             aria-pressed={emailSortOrder !== null}
           >

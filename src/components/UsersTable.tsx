@@ -23,10 +23,10 @@ export default function UsersTable({
   onDeleteClick,
 }: UsersTableProps) {
   return (
-    <div className="overflow-x-auto rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800/50 backdrop-blur-sm">
+    <div className="overflow-x-auto rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-800/60 backdrop-blur-xl">
       <table className="min-w-[700px] w-full divide-y divide-gray-200 dark:divide-gray-700">
         <caption className="sr-only">Users table with columns for avatar, name, email, phone, company, and actions</caption>
-        <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+        <thead className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900">
           <tr>
             <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
               Avatar
@@ -82,12 +82,12 @@ export default function UsersTable({
             users.map((user: User) => (
               <tr
                 key={user.id}
-                className="hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 dark:hover:from-gray-800 dark:hover:to-gray-800 transition-all duration-200 group"
+                className="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-900/40 dark:even:bg-gray-800/40 hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-indigo-50/60 dark:hover:from-gray-800 dark:hover:to-gray-800 transition-all duration-200 group"
                 aria-label={`User ${user.name}, email: ${user.email}`}
               >
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div
-                    className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center text-white font-semibold shadow-md ring-2 ring-white dark:ring-gray-800 group-hover:scale-110 transition-transform duration-200"
+                    className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white font-semibold shadow-md ring-2 ring-white/80 dark:ring-gray-800 group-hover:scale-110 transition-transform duration-200"
                     aria-hidden="true"
                   >
                     {getInitials(user.name)}
@@ -96,7 +96,7 @@ export default function UsersTable({
                 <td className="px-6 py-4 whitespace-nowrap">
                   <button
                     onClick={() => onRowClick(user.id)}
-                    className="text-sm font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-1 py-1"
+                    className="text-sm font-semibold text-gray-900 dark:text-white hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-200 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded px-1 py-1"
                     aria-label={`View details for ${user.name}`}
                   >
                     {user.name}
@@ -117,7 +117,7 @@ export default function UsersTable({
                   <div className="flex gap-3">
                     <button
                       onClick={() => onEdit(user)}
-                      className="px-3 py-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded border border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                      className="px-3 py-1.5 text-blue-700 dark:text-blue-300 font-semibold transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                       aria-label={`Edit user ${user.name}`}
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -127,7 +127,7 @@ export default function UsersTable({
                     </button>
                     <button
                       onClick={() => onDeleteClick(user)}
-                      className="px-3 py-1.5 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      className="px-3 py-1.5 text-red-700 dark:text-red-300 font-semibold transition-colors duration-200 flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded-lg border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20"
                       aria-label={`Delete user ${user.name}`}
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">

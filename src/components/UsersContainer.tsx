@@ -91,7 +91,7 @@ export default function UsersContainer() {
   }, [totalPages, currentPage])
 
   const handleSubmit = (payload: { name: string; email: string; phone: string; company: string }) => {
-    if (!validateUser(payload.name, payload.email)) {
+    if (!validateUser(payload.name, payload.email, payload.phone)) {
       return
     }
 

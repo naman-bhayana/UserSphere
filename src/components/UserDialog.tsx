@@ -37,10 +37,10 @@ export default function UserDialog({ open, onOpenChange, initial, onSubmit }: Us
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 animate-in fade-in duration-200" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 w-full max-w-md z-50 focus:outline-none border border-gray-200 dark:border-gray-700 animate-in fade-in zoom-in-95 duration-200">
+        <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-md z-40 animate-in fade-in duration-200" />
+        <Dialog.Content className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/90 dark:bg-gray-800/90 rounded-2xl shadow-2xl p-6 w-full max-w-md z-50 focus:outline-none border border-gray-200 dark:border-gray-700 backdrop-blur-xl animate-in fade-in zoom-in-95 duration-200">
           <div className="flex items-center gap-3 mb-6">
-            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${initial ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-green-100 dark:bg-green-900/30'}`}>
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${initial ? 'bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30' : 'bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30'}`}>
               {initial ? (
                 <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -91,12 +91,14 @@ export default function UserDialog({ open, onOpenChange, initial, onSubmit }: Us
                 </label>
                 <input
                   id="phone"
-                  type="tel"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]+"
                   required
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D+/g, ''))}
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm"
-                  placeholder="+1 234 567 8900"
+                  placeholder="e.g. 9876543210"
                 />
               </div>
               <div>
@@ -118,7 +120,7 @@ export default function UserDialog({ open, onOpenChange, initial, onSubmit }: Us
               <Dialog.Close asChild>
                 <button
                   type="button"
-                  className="px-5 py-2.5 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 font-medium"
+                  className="px-5 py-2.5 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 font-medium"
                   aria-label="Cancel and close dialog"
                 >
                   Cancel
@@ -126,7 +128,7 @@ export default function UserDialog({ open, onOpenChange, initial, onSubmit }: Us
               </Dialog.Close>
               <button
                 type="submit"
-                className="px-5 py-2.5 text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label={initial ? 'Update user' : 'Create new user'}
                 disabled={!name?.trim() || !email?.trim() || !phone?.trim() || !company?.trim()}
               >

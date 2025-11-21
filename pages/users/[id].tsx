@@ -85,7 +85,7 @@ export default function UserDetailPage() {
         <p className="text-gray-500 dark:text-gray-400">View complete user information</p>
       </div>
 
-      <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white/80 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white font-bold text-2xl ring-4 ring-white/30">
