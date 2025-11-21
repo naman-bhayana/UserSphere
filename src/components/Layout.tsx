@@ -7,15 +7,7 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const { currentUser, darkMode, toggleDarkMode, setCurrentUser } = useAppStore()
-
-  // Clear currentUser on mount (it shouldn't be persisted)
-  useEffect(() => {
-    if (currentUser) {
-      setCurrentUser(undefined)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const { currentUser, darkMode, toggleDarkMode } = useAppStore()
 
   useEffect(() => {
     if (darkMode) {
