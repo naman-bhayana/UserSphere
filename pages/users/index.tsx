@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import * as Select from '@radix-ui/react-select'
 import * as Dialog from '@radix-ui/react-dialog'
@@ -18,6 +18,8 @@ const getInitials = (name: string): string => {
 
 type EmailSortOrder = 'asc' | 'desc' | null
 
+const ITEMS_PER_PAGE = 10
+
 export default function UsersPage() {
   const { data: users, isLoading, error } = useQuery({
     queryKey: ['users'],
@@ -27,6 +29,7 @@ export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [emailSortOrder, setEmailSortOrder] = useState<EmailSortOrder>(null)
   const [selectedCompany, setSelectedCompany] = useState<string>('all')
+  const [currentPage, setCurrentPage] = useState(1)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | undefined>(undefined)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -69,6 +72,18 @@ export default function UsersPage() {
 
     return filtered
   }, [users, searchTerm, selectedCompany, emailSortOrder])
+
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+    const endIndex = startIndex + ITEMS_PER_PAGE
+    return filteredAndSortedUsers.slice(startIndex, endIndex)
+  }, [filteredAndSortedUsers, currentPage])
+
+  const totalPages = Math.ceil(filteredAndSortedUsers.length / ITEMS_PER_PAGE)
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, selectedCompany, emailSortOrder])
 
   const validateForm = (name: string, email: string): boolean => {
     if (!name.trim()) {
@@ -262,14 +277,14 @@ export default function UsersPage() {
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-            {filteredAndSortedUsers.length === 0 ? (
+            {paginatedUsers.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                   No users found
                 </td>
               </tr>
             ) : (
-              filteredAndSortedUsers.map((user: User) => (
+              paginatedUsers.map((user: User) => (
                 <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
@@ -314,6 +329,35 @@ export default function UsersPage() {
           </tbody>
         </table>
       </div>
+
+      {filteredAndSortedUsers.length > 0 && (
+        <div className="mt-6 flex items-center justify-between">
+          <div className="text-sm text-gray-700 dark:text-gray-300">
+            Showing {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, filteredAndSortedUsers.length)} to{' '}
+            {Math.min(currentPage * ITEMS_PER_PAGE, filteredAndSortedUsers.length)} of{' '}
+            {filteredAndSortedUsers.length} users
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       <UserDialog
         open={dialogOpen}
