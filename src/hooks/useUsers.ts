@@ -71,7 +71,7 @@ export const useAddUser = () => {
       const tempId = context?.tempUser?.id
       const mergedUser: User = {
         ...data,
-        id: data.id,
+        id: tempId ?? data.id,
         phone: variables.phone,
         company: {
           name: variables.company,
@@ -94,10 +94,10 @@ export const useAddUser = () => {
         if (tempId) {
           return existing.map((user) => (user.id === tempId ? mergedUser : user))
         }
-        const deduped = existing.filter(
-          (u) => u.email !== mergedUser.email && u.username !== mergedUser.username
+        const alreadyExists = existing.some(
+          (u) => u.id === mergedUser.id || u.email === mergedUser.email || u.username === mergedUser.username
         )
-        return [mergedUser, ...deduped]
+        return alreadyExists ? existing : [mergedUser, ...existing]
       })
     },
     onError: (_err, _newUser, context) => {
