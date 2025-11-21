@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { User } from '../types'
+import type { User } from '../../types'
 
 const BASE_URL = 'https://jsonplaceholder.typicode.com'
 
